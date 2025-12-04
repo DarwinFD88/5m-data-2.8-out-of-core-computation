@@ -15,6 +15,22 @@ Question: Join the `metadata_pl` and `ratings_pl` DataFrames in Polars, then cal
 Answer:
 
 ```python
+#Join both DataFrames
+joined_df = metadata_pl.join(ratings_pl, left_on='vote_count', right_on='userId', how='inner')
+
+#Average rating by genre
+avg_ratings_by_genre = (joined_df.lazy()
+                        .groupby('genres')
+                        .agg(pl.col('rating').mean().alias('average_rating'))
+                        .sort('average_rating', descending=True))
+avg_ratings_by_genre.collect()
+
+#Average rating by original language
+avg_ratings_by_original_language = (joined_df.lazy()
+                                    .groupby('original_language')
+                                    .agg(pl.col('rating').mean().alias('average_rating'))
+                                    .sort('average_rating', descending=True))
+avg_ratings_by_original_language.collect()
 
 ```
 
@@ -25,7 +41,15 @@ Question: Calculate the average total amount for vendors with at least 5 trips f
 Answer:
 
 ```python
+q2 = (pl.scan_csv('data/taxi_trip_data.csv')
+      .groupby('vendor_id')
+      .agg([pl.count('total_amount').alias('total_trips'),
+            pl.mean('total_amount').alias('average_amount')])
+      .filter(pl.col('total_trips') >= 5)
+      .sort('average_amount', descending=True)
+      )
 
+q2.collect(streaming=True)
 ```
 
 ## Submission
