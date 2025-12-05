@@ -16,7 +16,7 @@ Answer:
 
 ```python
 #Join both DataFrames
-joined_df = metadata_pl.join(ratings_pl, left_on='vote_count', right_on='userId', how='inner')
+joined_df = metadata_pl.join(ratings_pl, left_on='id', right_on='movieId', how='inner')
 
 #Average rating by genre
 avg_ratings_by_genre = (joined_df.lazy()
